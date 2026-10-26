@@ -1,6 +1,6 @@
 # Meraki, copiloto multiagente de atención al cliente
 
-Copiloto de soporte para un SaaS B2B que recibe unos **3.000 tickets por mes**. Clasifica cada ticket, consulta el CRM y la base de conocimiento, arma un borrador de respuesta y deja a una persona aprobando lo sensible.
+Copiloto de soporte para un SaaS B2B que recibe unos **3.000 tickets por mes**. Clasifica cada ticket, decide si lo resuelve solo o si lo asiste a un operador, y nunca resuelve sin una persona lo que es sensible.
 
 > Proyecto grupal de Aplicaciones de IA a los Negocios, Licenciatura en Negocios Digitales, Universidad ORT Uruguay, 2026. Cliente ficticio: MercadoSur Tech.
 
@@ -10,71 +10,79 @@ Copiloto de soporte para un SaaS B2B que recibe unos **3.000 tickets por mes**. 
 
 ```mermaid
 flowchart LR
-    A[Email o formulario] --> B[POST /api/procesar-ticket]
-    B --> G{Guardrail<br/>jailbreak}
-    G -- bloqueado --> R1[requiere_revisión]
-    G -- ok --> C[1. Triaje<br/>Claude Haiku]
-    C --> D[2. Base de<br/>conocimiento]
-    C --> E[3. CRM]
-    D --> F[4. Respuesta<br/>Claude Sonnet]
-    E --> F
-    F --> H{Puerta de escalado}
-    H -- sensible --> R2[escalado_humano]
-    H -- confianza menor a 0,7 --> R1
-    H -- ok --> R3[pendiente_envío]
-    R3 --> I[Operador valida<br/>POST /api/enviar-email]
-    I --> J[POST /api/feedback<br/>CSAT 1 a 5]
+    subgraph frontend [frontend · Next.js en Vercel]
+      UI[Formulario de ticket<br/>+ 16 casos de prueba] --> R[POST /api/procesar]
+      R --> CL{Clasificación}
+      CL -- rutinario --> RES[Agente Resolvedor<br/>responde solo]
+      CL -- sensible --> COP[Agente Copiloto<br/>borrador + nota al operador]
+      RES & COP --> P[Panel: categoría, urgencia,<br/>confianza y respuesta]
+    end
+    subgraph backend [backend · API del MVP 2.0]
+      T[POST /api/procesar-ticket] --> TR[Triaje<br/>Claude Haiku]
+      TR --> KB[(Base de<br/>conocimiento)]
+      TR --> CRM[(CRM)]
+      KB & CRM --> GEN[Respuesta<br/>Claude Sonnet]
+      GEN --> G{Puerta de escalado}
+      G --> LOG[(Log de tickets)]
+      LOG --> OP[Operador aprueba<br/>/api/enviar-email]
+    end
 ```
 
-Ningún ticket sale al cliente sin que lo apruebe un operador. Las cancelaciones y los reembolsos nunca se responden en automático.
+Dos agentes con roles distintos:
+
+| Agente | Cuándo actúa | Ejemplos |
+|---|---|---|
+| **Resolvedor** | Casos rutinarios: responde con la información de la base de conocimiento | Contraseña, factura, upgrade de plan, caída del servicio, datos administrativos |
+| **Copiloto** | Casos sensibles: prepara el borrador y le deja una nota al operador | Cancelación, cobro duplicado o reembolso, integraciones y API |
 
 ## Estructura del repo
 
 ```
 meraki-copiloto-soporte/
-├── backend/                      API del MVP 2.0, Node sin dependencias
-│   ├── api/                      un archivo por endpoint, formato Vercel Functions
-│   │   ├── procesar-ticket.js
-│   │   ├── tickets.js
-│   │   ├── ticket/[id].js
-│   │   ├── enviar-email.js
-│   │   └── feedback.js
-│   ├── lib/
-│   │   ├── procesar.js           orquestador del flujo completo
-│   │   ├── triaje.js             clasificación en 8 categorías
-│   │   ├── kb.js                 búsqueda de la sección de la KB
-│   │   ├── crm.js                lookup del cliente
-│   │   ├── respuesta.js          generación de la respuesta
-│   │   ├── guardrails.js         detección de jailbreak
-│   │   ├── prompts.js            prompts de Haiku y Sonnet
-│   │   └── registro.js           log de tickets
-│   ├── scripts/demo.js           corre los 16 tickets del piloto
-│   ├── test/                     tests con node:test
-│   ├── server.js                 servidor local
-│   └── .env.example
-├── knowledge-base/
-│   └── base_de_conocimiento.md   las 9 secciones que consulta Meraki
-├── data/
-│   ├── crm_piloto.csv            10 clientes de prueba
-│   └── tickets_piloto.csv        16 tickets del piloto con su resultado
-└── docs/
-    └── requerimientos_mvp2.md    frontend, backend, flujo y reglas
+├── frontend/                   MVP publicado, generado con v0
+│   ├── app/page.tsx            formulario, 16 casos de prueba y panel de resultado
+│   ├── app/api/procesar/       route handler que clasifica y asigna agente
+│   ├── components/ui/          componentes shadcn/ui
+│   └── package.json            Next.js 16, React 19, Tailwind 4
+├── backend/                    API del MVP 2.0, Node sin dependencias
+│   ├── api/                    procesar-ticket, tickets, ticket/[id], enviar-email, feedback
+│   ├── lib/                    triaje, KB, CRM, respuesta, guardrails, prompts y registro
+│   ├── scripts/demo.js         corre los 16 tickets del piloto
+│   └── test/                   tests con node:test
+├── db/
+│   ├── schema.sql              tablas de clientes y tickets
+│   ├── crm_piloto.csv          10 clientes de prueba
+│   ├── tickets_piloto.csv      16 tickets del piloto con su resultado
+│   └── base_de_conocimiento.md las 9 secciones que consulta Meraki
+└── specs/
+    ├── requerimientos_mvp2.md  frontend, backend, flujo e integraciones
+    └── api.md                  contrato de los endpoints
 ```
-
-El frontend del MVP se construyó en v0 y está publicado en Vercel ([ver MVP](https://v0-meraki-mvp-project.vercel.app)).
 
 ## Cómo correrlo
 
-Necesitás Node 20 o más. No hay que instalar nada.
+### Frontend, el MVP publicado
+
+Necesitás Node 20 o más.
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:3000
+```
+
+Cargá uno de los casos de prueba o escribí un ticket y tocá "Procesar". La clasificación corre en el route handler `app/api/procesar`, sin claves ni servicios externos.
+
+### Backend, la API del MVP 2.0
+
+No hay que instalar nada.
 
 ```bash
 cd backend
-npm test          # 7 tests del flujo y los guardrails
-npm run demo      # procesa los 16 tickets del piloto y muestra la tabla
-npm start         # API en http://localhost:3001
+npm test           # 7 tests del flujo y los guardrails
+npm run demo       # procesa los 16 tickets del piloto
+npm start          # API en http://localhost:3001
 ```
-
-Probar un ticket:
 
 ```bash
 curl -X POST http://localhost:3001/api/procesar-ticket \
@@ -82,36 +90,25 @@ curl -X POST http://localhost:3001/api/procesar-ticket \
   -d '{"email":"juan.perez@acme.com","texto":"Olvidé mi contraseña y no puedo entrar"}'
 ```
 
-### Dos modos
+Sin `ANTHROPIC_API_KEY` corre en **modo simulación**, determinístico y sin llamadas externas. Con la clave en `backend/.env` usa Claude Haiku para el triaje y Claude Sonnet para la respuesta (ver `backend/.env.example`).
 
-| Modo | Cuándo | Qué hace |
-|---|---|---|
-| **Simulación** | Sin `ANTHROPIC_API_KEY` | Triaje por reglas y respuesta con plantilla de la KB. Determinístico, sin llamadas externas, ideal para demos y tests |
-| **Producción** | Con `ANTHROPIC_API_KEY` en `.env` | Triaje con Claude Haiku y respuesta con Claude Sonnet |
+### Base de datos
 
-## Endpoints
-
-| Método | Endpoint | Qué hace |
-|---|---|---|
-| POST | `/api/procesar-ticket` | Corre el flujo completo y devuelve el ticket con categoría, urgencia, confianza, KB usada, datos del cliente y borrador |
-| GET | `/api/tickets` | Lista paginada con filtros `estado`, `categoria` y `desde` |
-| GET | `/api/ticket/:id` | Detalle con cada paso del procesamiento |
-| POST | `/api/enviar-email` | El operador aprueba y envía; rechaza los casos escalados |
-| POST | `/api/feedback` | Registra el CSAT de 1 a 5 |
+```bash
+psql -f db/schema.sql
+```
 
 ## Guardrails
 
+- **Casos sensibles siempre con una persona:** cancelaciones, reembolsos y cobros duplicados nunca se cierran solos.
 - **Puerta de confianza:** por debajo de 0,7 el ticket vuelve como borrador para revisión.
-- **Categorías sensibles:** cancelaciones y reembolsos van siempre a una persona.
-- **Señales de escalado:** errores que persisten o cobros duplicados bajan la confianza para que los vea un operador.
 - **Jailbreak:** los intentos de saltear las reglas se bloquean antes de llegar al modelo.
-- **Respuestas acotadas a la KB:** el prompt prohíbe prometer reembolsos, créditos o plazos que no estén documentados.
-
-El MVP publicado suma **control de acceso por rol:** Operador L1 y Supervisor L1.5 ven y pueden hacer cosas distintas.
+- **Respuestas acotadas a la KB:** no se prometen reembolsos, créditos ni plazos que no estén documentados.
+- **Control de acceso por rol:** Operador L1 y Supervisor L1.5 ven y pueden hacer cosas distintas.
 
 ## Diseño responsable
 
-Pensado para cumplir la **Ley 18.331** de protección de datos personales de Uruguay, y **GDPR** y **LGPD** para clientes de la región. Los datos del repo son de prueba, de una empresa ficticia.
+Pensado para cumplir la **Ley 18.331** de protección de datos personales de Uruguay, y **GDPR** y **LGPD** para clientes de la región. Todos los datos del repo son de prueba, de una empresa ficticia.
 
 ## Caso de negocio
 
@@ -124,25 +121,27 @@ Pensado para cumplir la **Ley 18.331** de protección de datos personales de Uru
 
 ## Decisiones de diseño
 
-- **Dos modelos:** el chico (Haiku) clasifica rápido y barato; el grande (Sonnet) solo escribe la respuesta.
-- **Humano en el circuito siempre:** Meraki propone, el operador decide. Reduce el riesgo de una respuesta equivocada en un SaaS B2B.
-- **Modo simulación determinístico:** permite demostrar y testear el flujo sin costo de API y sin depender de la red.
-- **Sin dependencias en el backend:** menos superficie de ataque y cero instalación para correrlo.
+- **Dos agentes en lugar de uno:** separar lo que se puede resolver solo de lo que necesita criterio humano hace explícito el riesgo de cada respuesta.
+- **Clasificación determinística en el MVP:** permite demostrar el flujo completo en vivo, sin costo de API y con resultados repetibles.
+- **Dos modelos en el MVP 2.0:** el chico (Haiku) clasifica rápido y barato; el grande (Sonnet) solo escribe la respuesta.
+- **Humano en el circuito siempre:** Meraki propone, el operador decide.
+- **Backend sin dependencias:** menos superficie de ataque y cero instalación para probarlo.
 - **Registro de cada paso:** sirve para auditoría, debugging y para entrenar versiones futuras.
 
 ## Roadmap
 
-- [x] Triaje en 8 categorías con urgencia y confianza
-- [x] Consulta a KB y CRM, respuesta contextual
-- [x] Puerta de escalado y guardrails
-- [x] Endpoints de tickets, envío y CSAT
+- [x] MVP: formulario, clasificación, asignación de agente y nota al operador
+- [x] 16 casos de prueba con cancelaciones, contraseñas, facturas, cobros, planes, caídas y API
+- [x] API de tickets con triaje, KB, CRM, puerta de escalado y CSAT
+- [x] Guardrails y tests
+- [ ] Conectar el frontend a la API del MVP 2.0
 - [ ] Entrada por Gmail API con polling cada 5 minutos
-- [ ] KB, CRM y log conectados a Google Docs y Sheets
+- [ ] KB, CRM y log en Google Docs y Sheets
 - [ ] Dashboard con logs en tiempo real
 
 ## Stack
 
-Claude API · MCP · RAG · Node.js · v0 · Next.js · Vercel
+Claude API · Next.js · React · Tailwind · shadcn/ui · v0 · Vercel · Node.js · PostgreSQL
 
 ---
 

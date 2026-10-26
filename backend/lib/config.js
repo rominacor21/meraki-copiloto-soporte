@@ -16,9 +16,9 @@ export const config = {
   umbralConfianza: Number(process.env.UMBRAL_CONFIANZA ?? 0.7),
 
   rutas: {
-    kb: process.env.KB_PATH ?? path.join(raiz, 'knowledge-base', 'base_de_conocimiento.md'),
-    crm: process.env.CRM_PATH ?? path.join(raiz, 'data', 'crm_piloto.csv'),
-    registro: process.env.REGISTRO_PATH ?? path.join(raiz, 'data', 'registro_tickets.jsonl'),
+    kb: process.env.KB_PATH ?? path.join(raiz, 'db', 'base_de_conocimiento.md'),
+    crm: process.env.CRM_PATH ?? path.join(raiz, 'db', 'crm_piloto.csv'),
+    registro: process.env.REGISTRO_PATH ?? path.join(raiz, 'db', 'registro_tickets.jsonl'),
   },
 
   pieDeRespuesta:

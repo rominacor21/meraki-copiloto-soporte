@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { parsearCSV } from '../lib/crm.js';
 import { procesarTicket } from '../lib/procesar.js';
 
-const ruta = fileURLToPath(new URL('../../data/tickets_piloto.csv', import.meta.url));
+const ruta = fileURLToPath(new URL('../../db/tickets_piloto.csv', import.meta.url));
 const piloto = parsearCSV(readFileSync(ruta, 'utf8'));
 
 const filas = [];

@@ -1,0 +1,17 @@
+timestamp,nombre_cliente,email,mensaje,categoria,urgencia,confianza,estado
+2026-06-06 14:32:00,Juan Pérez,juan.perez@acme.com,Olvidé mi contraseña y no puedo entrar a mi cuenta,Reset de contraseña,Media,0.93,enviado
+2026-06-06 14:45:30,María Rodríguez,maria.rodriguez@techstart.io,¿Dónde veo mi factura del mes pasado?,Consulta de factura,Media,0.88,enviado
+2026-06-06 15:01:15,Carlos López,carlos.lopez@innovatech.ar,Quiero cambiar la razón social de mi empresa en los datos de facturación,Cambios administrativos,Baja,0.91,enviado
+2026-06-06 15:18:42,Sofía García,sofia.garcia@softdev.mx,Estamos integrando con Salesforce pero nos falta documentación técnica del endpoint,Integraciones y API,Alta,0.62,requiere_revisión
+2026-06-06 15:35:08,Diego Martínez,diego.martinez@startup.uy,¿Qué diferencias hay entre el plan Starter y Growth?,Upgrade/downgrade de plan,Media,0.85,enviado
+2026-06-06 16:02:19,Ana Torres,ana.torres@enterprise.com,¿Cuál es el estado actual del servicio? Vemos lentitud,Consulta de estado,Alta,0.79,enviado
+2026-06-06 16:19:47,Pablo Sánchez,pablo.sanche@midsize.ar,Queremos upgrade de Growth a Enterprise. ¿Cuál es el proceso?,Upgrade/downgrade de plan,Media,0.92,enviado
+2026-06-06 16:45:33,Lucia Fernández,lucia.fernandez@smallbiz.uy,Tengo un problema técnico: la plataforma se cuelga cada que intento generar un reporte,Problema técnico/bug,Alta,0.58,requiere_revisión
+2026-06-06 17:12:56,Martín Ruiz,martin.ruiz@corp.mx,La factura de junio llegó con un monto duplicado. Necesito una corrección urgente,Problema de facturación,Alta,0.71,requiere_revisión
+2026-06-06 17:39:22,Elena López,elena.lopez@newco.ar,¿Cómo reseteamos la contraseña de un usuario que ya no está en la empresa?,Problema técnico/bug,Media,0.87,enviado
+2026-06-06 18:05:14,Juan Pérez,juan.perez@acme.com,Tenemos 3 nuevos usuarios y necesitamos crearles cuentas. ¿Cómo funciona?,Cambios administrativos,Media,0.94,enviado
+2026-06-06 18:32:41,María Rodríguez,maria.rodriguez@techstart.io,Quiero cancelar mi suscripción a MercadoSur Tech,Cancelación/reembolso,Alta,1.00,escalado_humano
+2026-06-06 19:08:57,Carlos López,carlos.lopez@innovatech.ar,¿Hay algún incidente en el servicio? No puedo acceder desde hace 1 hora,Consulta de estado,Alta,0.89,enviado
+2026-06-06 19:45:18,Sofía García,sofia.garcia@softdev.mx,El error en la integración con Salesforce persiste. Es urgente para nuestro cliente,Integraciones y API,Alta,0.45,requiere_revisión
+2026-06-06 20:22:35,Diego Martínez,diego.martinez@startup.uy,¿Hay versión móvil de la plataforma o solo web?,Otro,Baja,0.76,enviado
+2026-06-06 21:09:43,Ana Torres,ana.torres@enterprise.com,Necesitamos integración con pasarela de pago MercadoPago. ¿Es posible?,Integraciones y API,Media,0.81,enviado

@@ -1,0 +1,13 @@
+{
+  "name": "meraki-backend",
+  "version": "2.0.0",
+  "description": "Backend del MVP 2.0 de Meraki: triaje, KB, CRM, respuesta y registro de tickets",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "demo": "node scripts/demo.js"
+  }
+}

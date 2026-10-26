@@ -1,0 +1,11 @@
+email,nombre,empresa,plan,estado_pago,fecha_registro,total_tickets,ultimo_contacto,notas
+juan.perez@acme.com,Juan Pérez,ACME Corp,Pro,Al día,2024-03-15,12,2026-06-05,Cliente VIP; última consulta sobre upgrade
+maria.rodriguez@techstart.io,María Rodríguez,TechStart,Starter,Vencido,2025-01-20,3,2026-06-01,Recordar pago; cuenta suspendida
+carlos.lopez@innovatech.ar,Carlos López,InnovaTech,Enterprise,Al día,2023-11-10,47,2026-06-06,Cuenta con 5 usuarios; contrato anual renovable
+sofia.garcia@softdev.mx,Sofía García,SoftDev Solutions,Pro,Al día,2024-08-22,18,2026-05-28,Reportó bug en integraciones API; seguimiento pendiente
+diego.martinez@startup.uy,Diego Martínez,StartUp UY,Starter,Al día,2026-02-01,2,2026-06-04,Cliente nuevo; verificar onboarding
+ana.torres@enterprise.com,Ana Torres,Enterprise Solutions,Enterprise,Al día,2023-06-05,128,2026-06-06,Multi-usuario; frecuentes consultas de facturación
+pablo.sanche@midsize.ar,Pablo Sánchez,MidSize Tech,Growth,Al día,2024-05-18,31,2026-06-02,Considera upgrade a Enterprise; ejecutivo asignado
+lucia.fernandez@smallbiz.uy,Lucia Fernández,Small Business,Starter,Vencido,2025-06-12,5,2026-05-20,No renueva; contactar para win-back
+martin.ruiz@corp.mx,Martín Ruiz,Corporate Solutions,Enterprise,Al día,2023-03-30,206,2026-06-05,Cliente de mayor volumen; soporte dedicado asignado
+elena.lopez@newco.ar,Elena López,NewCo Consulting,Pro,Al día,2024-11-08,8,2026-06-01,Integración Salesforce activa; sin issues reportados
